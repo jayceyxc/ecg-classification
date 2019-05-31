@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# @Time    : 2019-05-31 15:18
+# @Author  : yuxuecheng
+# @Contact : yuxuecheng@xinluomed.com
+# @Site    : 
+# @File    : feature_selection.py
+# @Software: PyCharm
+# @Description
+
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LassoCV
 from sklearn.feature_selection import SelectPercentile, f_classif
@@ -5,13 +15,14 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 
 import numpy as np
+
+
 # https://machinelearningmastery.com/feature-selection-machine-learning-python/
 
 def run_feature_selection(features, labels, feature_selection, best_features):
-    
     if feature_selection == 'select_K_Best':
         # feature extraction
-        selector = SelectKBest(score_func=f_classif, k=4) # score_func=chi2 : only for non-negative features
+        selector = SelectKBest(score_func=f_classif, k=4)  # score_func=chi2 : only for non-negative features
         selector.fit(features, labels)
         # summarize scores
         scores = selector.scores_
@@ -19,7 +30,7 @@ def run_feature_selection(features, labels, feature_selection, best_features):
         features_selected = features[:, features_index_sorted[0:best_features]]
 
     # SelectFromModel and LassoCV
-    
+
     # We use the base estimator LassoCV since the L1 norm promotes sparsity of features.
     if feature_selection == 'LassoCV':
         clf = LassoCV()
@@ -40,8 +51,8 @@ def run_feature_selection(features, labels, feature_selection, best_features):
         """
 
     # Univariate feature selection
-    # Univariate feature selection works by selecting the best features based on univariate statistical tests. 
-    # It can be seen as a preprocessing step to an estimator. 
+    # Univariate feature selection works by selecting the best features based on univariate statistical tests.
+    # It can be seen as a preprocessing step to an estimator.
     # Scikit-learn exposes feature selection routines as objects that implement the transform method:
     #   - SelectKBest removes all but the k highest scoring features
     #   - SelectPercentile removes all but a user-specified highest scoring percentage of features
@@ -51,7 +62,7 @@ def run_feature_selection(features, labels, feature_selection, best_features):
     if feature_selection == 'slct_percentile':
         selector = SelectPercentile(f_classif, percentile=10)
         selector.fit(features, labels)
-        # The percentile not affect. 
+        # The percentile not affect.
         # Just select in order the top features by number or threshold
 
         # Keep best 8 values?
