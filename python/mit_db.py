@@ -48,5 +48,5 @@ class MitDb:
         self.beat = np.empty([])  # record, beat, lead
         self.class_ID = []
         self.valid_R = []
-        self.R_pos = []
-        self.orig_R_pos = []
+        self.R_pos = []         # 调整后的R波位置
+        self.orig_R_pos = []    # 原始的R波位置

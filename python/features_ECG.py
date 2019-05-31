@@ -101,8 +101,14 @@ def compute_wavelet_descriptor(beat, family, level):
     return coeffs[0]
 
 
-# Compute my descriptor based on amplitudes of several intervals
 def compute_my_own_descriptor(beat, winL, winR):
+    """
+    Compute my descriptor based on amplitudes of several intervals
+    :param beat:
+    :param winL:
+    :param winR:
+    :return:
+    """
     R_pos = int((winL + winR) / 2)
 
     R_value = beat[R_pos]

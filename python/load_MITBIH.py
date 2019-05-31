@@ -95,10 +95,19 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
     :param winL:
     :param winR:
     :param do_preprocess:
-    :param maxRR:
-    :param use_RR:
-    :param norm_RR:
-    :param compute_morph:
+    :param maxRR: 是否使用最大RR间隔
+    :param use_RR: 是否使用RR间隔
+    :param norm_RR: 是否使用平均的RR间隔
+    :param compute_morph: 计算心电特征的变形，心跳信息。
+           resample_10: 使用傅立叶变换对心跳信息进行重新取样
+           raw: 使用原始的心跳信息
+           u-lbp: compute_uniform_LBP
+           lbp: compute_LBP
+           hbf5: compute_HBF
+           wvlt: compute_wavelet_descriptor
+           wvlt+pca: compute_wavelet_descriptor + IncrementalPCA
+           HOS: compute_hos_descriptor
+           myMorph: compute_my_own_descriptor
     :param db_path: 数据文件路径
     :param reduced_DS: load DS1, DS2 patients division (Chazal) or reduced version,
                        i.e., only patients in common that contains both MLII and V1
@@ -230,11 +239,11 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
                     f_raw_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
-                            resamp_beat = scipy.signal.resample(beat[s], 10)
+                            resample_beat = scipy.signal.resample(beat[s], 10)
                             if f_raw_lead.size == 1:
-                                f_raw_lead = resamp_beat
+                                f_raw_lead = resample_beat
                             else:
-                                f_raw_lead = np.hstack((f_raw_lead, resamp_beat))
+                                f_raw_lead = np.hstack((f_raw_lead, resample_beat))
                     f_raw = np.vstack((f_raw, f_raw_lead))
 
             features = np.column_stack((features, f_raw)) if features.size else f_raw
@@ -454,6 +463,14 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 # winL, winR: indicates the size of the window centred at R-peak at left and right side
 # do_preprocess: indicates if preprocesing of remove baseline on signal is performed
 def load_signal(DS, winL, winR, do_preprocess):
+    """
+    加载波形数据
+    :param DS:
+    :param winL:
+    :param winR:
+    :param do_preprocess: 是否进行预处理
+    :return:
+    """
     class_ID = [[] for i in range(len(DS))]
     beat = [[] for i in range(len(DS))]  # record, beat, lead
     R_poses = [np.array([]) for i in range(len(DS))]
@@ -560,8 +577,8 @@ def load_signal(DS, winL, winR, do_preprocess):
         for a in annotations:
             aS = a.split()
 
-            pos = int(aS[1])
-            originalPos = int(aS[1])
+            pos = int(aS[1])            # Time 时间
+            originalPos = int(aS[1])    # Sample 采样点，对应心电信号.csv中的第一列sample
             classAnttd = aS[2]
             if size_RR_max < pos < (len(MLII) - size_RR_max):
                 index, value = max(enumerate(MLII[pos - size_RR_max: pos + size_RR_max]), key=operator.itemgetter(1))
