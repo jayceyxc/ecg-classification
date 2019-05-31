@@ -22,13 +22,13 @@ import numpy as np
 
 class PerformanceMeasures:
     def __init__(self, n):
-        self.n_classes = n
-        self.confusion_matrix = np.empty([])
-        self.Recall = np.empty(n)
-        self.Precision = np.empty(n)
-        self.Specificity = np.empty(n)
-        self.Acc = np.empty(n)
-        self.F_measure = np.empty(n)
+        self.n_classes = n                      # 分类数
+        self.confusion_matrix = np.empty([])    # 混淆矩阵
+        self.Recall = np.empty(n)               # 召回率
+        self.Precision = np.empty(n)            # 准确率
+        self.Specificity = np.empty(n)          # 特异性
+        self.Acc = np.empty(n)                  # 精度
+        self.F_measure = np.empty(n)            # F评分
 
         self.gmean_se = 0.0
         self.gmean_p = 0.0
@@ -65,10 +65,17 @@ def compute_cohen_kappa(confusion_matrix):
     return kappa, prob_observed, prob_expected
 
 
-# Compute the performance measures following the AAMI recommendations.
-# Using sensivity (recall), specificity (precision) and accuracy
-# for each class: (N, SVEB, VEB, F)
 def compute_AAMI_performance_measures(predictions, gt_labels):
+    """
+    AAMI: 全称The Association for the Advancement of Medical Instrumentation，美国医疗仪器促进协会，成员包括临床和生物医学工程
+    师、技师，医师，护士和医院管理人员，教育工作者和研究人员，制造商，分销商，政府代表及其他医护专业人员。
+    Compute the performance measures following the AAMI recommendations.
+    Using sensitivity (recall), specificity (precision) and accuracy
+    for each class: (N, SVEB, VEB, F)
+    :param predictions: 预测标签
+    :param gt_labels: 实际标签
+    :return:
+    """
     n_classes = 4  # 5
     pf_ms = PerformanceMeasures(n_classes)
 
@@ -99,7 +106,7 @@ def compute_AAMI_performance_measures(predictions, gt_labels):
 
         pf_ms.Recall[i] = TP / (TP + FN)
         pf_ms.Precision[i] = TP / (TP + FP)
-        pf_ms.Specificity[i] = TN / (TN + FP);  # 1-FPR
+        pf_ms.Specificity[i] = TN / (TN + FP)  # 1-FPR
         pf_ms.Acc[i] = (TP + TN) / (TP + TN + FP + FN)
 
         if TP == 0:

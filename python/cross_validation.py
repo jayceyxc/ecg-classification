@@ -20,10 +20,19 @@ from sklearn import svm
 from python.aggregation_voting_strategies import *
 
 
-# Eval the SVM model and export the results
 def eval_crossval_fold(svm_model, features, labels, multi_mode, voting_strategy):
+    """
+    Eval the SVM model and export the results
+    :param svm_model: SVM模型对象，svm.SVC
+    :param features: 特征
+    :param labels: 标签
+    :param multi_mode:
+    :param voting_strategy: 投票策略：ovo_voting，ovo_voting_both，ovo_voting_exp
+    :return:
+    """
     if multi_mode == 'ovo':
         decision_ovo = svm_model.decision_function(features)
+        predict_ovo = None
 
         if voting_strategy == 'ovo_voting':
             predict_ovo, counter = ovo_voting(decision_ovo, 4)
@@ -35,12 +44,21 @@ def eval_crossval_fold(svm_model, features, labels, multi_mode, voting_strategy)
             predict_ovo, counter = ovo_voting_exp(decision_ovo, 4)
 
         # svm_model.predict_log_proba  svm_model.predict_proba   svm_model.predict ...
-        perf_measures = compute_AAMI_performance_measures(predict_ovo, labels)
-
-    return perf_measures
+        if predict_ovo is not None:
+            perf_measures = compute_AAMI_performance_measures(predict_ovo, labels)
+            return perf_measures
 
 
 def run_cross_val(features, labels, patient_num_beats, division_mode, k):
+    """
+    执行交叉验证
+    :param features: 特征
+    :param labels: 标签
+    :param patient_num_beats: 患者心跳
+    :param division_mode:
+    :param k:
+    :return:
+    """
     print("Runing Cross validation...")
 
     # C_values
@@ -69,7 +87,7 @@ def run_cross_val(features, labels, patient_num_beats, division_mode, k):
                 base = patient_num_beats[kk] + 1
 
         # NOTE: 22 k-folds will be very computational cost
-        # NOTE: division by patient and oversampling couldnt by used!!!!
+        # NOTE: division by patient and oversampling couldn't by used!!!!
         if division_mode == 'beat_cv':
 
             # NOTE: class sklearn.model_selection.StratifiedKFold(n_splits=3, shuffle=False, random_state=None)[source]

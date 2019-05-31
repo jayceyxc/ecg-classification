@@ -14,7 +14,7 @@ from python.load_MITBIH import *
 
 # Generate graphics for paper
 
-db_path = '/home/mondejar/dataset/ECG/mitdb/m_learning/scikit/'
+db_path = '/Users/yuxuecheng/Work/XLTech/documents/产品相关/心电识别/数据集/mitbih_database/'
 winL = 90
 winR = 90
 do_preprocess = True
@@ -219,7 +219,7 @@ leg.get_frame().set_alpha(0.5)
 
 # plt.show()
 
-plt.savefig('/home/mondejar/graphic.pdf', dpi=None, facecolor='w', edgecolor='w',
+plt.savefig('/Users/yuxuecheng/Learn/OpenSource/medicine/ecg-classification/graphic.pdf', dpi=None, facecolor='w', edgecolor='w',
             orientation='portrait', papertype='a4', format='pdf', transparent=True, bbox_inches=None,
             pad_inches=0.1, frameon=None)
 

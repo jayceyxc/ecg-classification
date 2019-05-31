@@ -8,14 +8,6 @@
 # @Software: PyCharm
 # @Description
 
-"""
-run_SVM.py
-
-VARPA, University of Coruna
-Mondejar Guerra, Victor M.
-27 Oct 2017
-"""
-
 from python.train_SVM import *
 
 # Call different configurations for train_SVM.py

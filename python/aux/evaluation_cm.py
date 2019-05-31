@@ -190,7 +190,7 @@ def compute_AAMI_performance_measures(conf_mat):
     return pf_ms
 
 
-results_path = '/home/mondejar/Dropbox/ECG/code/ecg_classification/python/results/ovo/MLII/'
+results_path = '/Users/yuxuecheng/Learn/OpenSource/medicine/ecg-classification/python/results/ovo/MLII/'
 
 # Our single SVM
 # conf_mat = np.array([[39446, 2404, 340, 1843], [443, 1374, 186, 47], [28, 162, 3005, 25], [240, 2, 35, 111]])

@@ -75,8 +75,20 @@ def create_svm_model_name(model_svm_path, winL, winR, do_preprocess,
     return model_svm_path
 
 
-# Eval the SVM model and export the results
 def eval_model(svm_model, features, labels, multi_mode, voting_strategy, output_path, C_value, gamma_value, DS):
+    """
+    Eval the SVM model and export the results
+    :param svm_model:
+    :param features:
+    :param labels:
+    :param multi_mode:
+    :param voting_strategy:
+    :param output_path:
+    :param C_value:
+    :param gamma_value:
+    :param DS:
+    :return:
+    """
     if multi_mode == 'ovo':
         decision_ovo = svm_model.decision_function(features)
 
@@ -92,12 +104,10 @@ def eval_model(svm_model, features, labels, multi_mode, voting_strategy, output_
         # svm_model.predict_log_proba  svm_model.predict_proba   svm_model.predict ...
         perf_measures = compute_AAMI_performance_measures(predict_ovo, labels)
 
-    """
-    elif multi_mode == 'ovr':cr
+    elif multi_mode == 'ovr':
         decision_ovr = svm_model.decision_function(features)
         predict_ovr = svm_model.predict(features)
         perf_measures = compute_AAMI_performance_measures(predict_ovr, labels)
-    """
 
     # Write results and also predictions on DS2
     if not os.path.exists(output_path):
@@ -125,14 +135,27 @@ def eval_model(svm_model, features, labels, multi_mode, voting_strategy, output_
 
     elif multi_mode == 'ovr':
         np.savetxt(output_path + '/' + DS + 'C_' + str(C_value) +
-                   '_decision_ovr.csv', prob_ovr)
+                   '_decision_ovr.csv', decision_ovr)
         np.savetxt(output_path + '/' + DS + 'C_' + str(C_value) +
                    '_predict_' + voting_strategy + '.csv', predict_ovr.astype(int), '%.0f')
 
     print("Results writed at " + output_path + '/' + DS + 'C_' + str(C_value))
 
 
-def create_oversamp_name(reduced_DS, do_preprocess, compute_morph, winL, winR, maxRR, use_RR, norm_RR, pca_k):
+def create_oversample_name(reduced_DS, do_preprocess, compute_morph, winL, winR, maxRR, use_RR, norm_RR, pca_k):
+    """
+    拼装上采样名称
+    :param reduced_DS:
+    :param do_preprocess:
+    :param compute_morph:
+    :param winL:
+    :param winR:
+    :param maxRR:
+    :param use_RR:
+    :param norm_RR:
+    :param pca_k:
+    :return:
+    """
     oversamp_features_pickle_name = ''
     if reduced_DS:
         oversamp_features_pickle_name += '_reduced_'
@@ -161,11 +184,36 @@ def create_oversamp_name(reduced_DS, do_preprocess, compute_morph, winL, winR, m
 
 
 def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_class=True,
-         maxRR=True, use_RR=True, norm_RR=True, compute_morph={''}, oversamp_method='', pca_k='', feature_selection='',
+         maxRR=True, use_RR=True, norm_RR=True, compute_morph={''}, oversample_method='', pca_k='', feature_selection='',
          do_cross_val='', C_value=0.001, gamma_value=0.0, reduced_DS=False, leads_flag=[1, 0]):
+    """
+
+    :param multi_mode:
+    :param winL:
+    :param winR:
+    :param do_preprocess:
+    :param use_weight_class:
+    :param maxRR:
+    :param use_RR:
+    :param norm_RR:
+    :param compute_morph:
+    :param oversample_method: 过采样方法，可选参数如下：SMOTE、SMOTE_regular_min、SMOTE_regular、SMOTE_border、SMOTEENN、
+                              SMOTETomek、ADASYN
+    :param pca_k: 是否使用 IncrementalPCA 降维
+    :param feature_selection: 特征选择方式。
+           select_K_Best：SelectKBest，
+           LassoCV：LassoCV，
+           select_percentile：SelectPercentile
+    :param do_cross_val:
+    :param C_value:
+    :param gamma_value:
+    :param reduced_DS:
+    :param leads_flag:
+    :return:
+    """
     print("Runing train_SVM.py!")
 
-    db_path = '/Users/yuxuecheng/Work/XLTech/documents/产品相关/心电识别/数据集/mitbih_database'
+    db_path = '/Users/yuxuecheng/Work/XLTech/documents/产品相关/心电识别/数据集/mitbih_database/'
 
     # Load train data
     [tr_features, tr_labels, tr_patient_num_beats] = load_mit_db('DS1', winL, winR, do_preprocess,
@@ -191,14 +239,14 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
     # before oversamp!!?????
 
     # TODO perform normalization before the oversampling?
-    if oversamp_method:
+    if oversample_method:
         # Filename
-        oversamp_features_pickle_name = create_oversamp_name(reduced_DS, do_preprocess, compute_morph, winL, winR,
-                                                             maxRR, use_RR, norm_RR, pca_k)
+        oversample_features_pickle_name = create_oversample_name(reduced_DS, do_preprocess, compute_morph, winL, winR,
+                                                               maxRR, use_RR, norm_RR, pca_k)
 
         # Do oversampling
-        tr_features, tr_labels = perform_oversampling(oversamp_method, db_path + 'oversamp/python_mit',
-                                                      oversamp_features_pickle_name, tr_features, tr_labels)
+        tr_features, tr_labels = perform_oversampling(oversample_method, db_path + 'oversample/python_mit',
+                                                      oversample_features_pickle_name, tr_features, tr_labels)
 
     # Normalization of the input data
     # scaled: zero mean unit variance ( z-score )
@@ -209,7 +257,7 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
     # scaled: zero mean unit variance ( z-score )
     eval_features_scaled = scaler.transform(eval_features)
     ##############################################################
-    # 0) ????????????? feature_Selection: also after Oversampling???
+    # 0) feature_Selection: also after Oversampling
     if feature_selection:
         print("Runing feature selection")
         best_features = 7
@@ -257,9 +305,9 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
 
         # TODO Save data over the k-folds and ranked by the best average values in separated files
         perf_measures_path = create_svm_model_name(
-            '/home/mondejar/Dropbox/ECG/code/ecg_classification/python/results/' + multi_mode, winL, winR,
+            '/Users/yuxuecheng/Learn/OpenSource/medicine/ecg-classification/python/results/' + multi_mode, winL, winR,
             do_preprocess,
-            maxRR, use_RR, norm_RR, compute_morph, use_weight_class, feature_selection, oversamp_method, leads_flag,
+            maxRR, use_RR, norm_RR, compute_morph, use_weight_class, feature_selection, oversample_method, leads_flag,
             reduced_DS, pca_k, '/')
 
         # TODO implement this method! check to avoid NaN scores....
@@ -280,9 +328,9 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
                                                      k)
                 # TODO Save data over the k-folds and ranked by the best average values in separated files
                 perf_measures_path = create_svm_model_name(
-                    '/home/mondejar/Dropbox/ECG/code/ecg_classification/python/results/' + multi_mode, winL, winR,
+                    '/Users/yuxuecheng/Learn/OpenSource/medicine/ecg-classification/python/results/' + multi_mode, winL, winR,
                     do_preprocess,
-                    maxRR, use_RR, norm_RR, compute_morph, use_weight_class, feature_selection, oversamp_method,
+                    maxRR, use_RR, norm_RR, compute_morph, use_weight_class, feature_selection, oversample_method,
                     leads_flag, reduced_DS, pca_k, '/')
 
                 if not os.path.exists(perf_measures_path):
@@ -306,7 +354,7 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
         model_svm_path = create_svm_model_name(model_svm_path, winL, winR, do_preprocess,
                                                maxRR, use_RR, norm_RR, compute_morph, use_weight_class,
                                                feature_selection,
-                                               oversamp_method, leads_flag, reduced_DS, pca_k, '_')
+                                               oversample_method, leads_flag, reduced_DS, pca_k, '_')
 
         if gamma_value != 0.0:
             model_svm_path = model_svm_path + '_C_' + str(C_value) + '_g_' + str(gamma_value) + '.joblib.pkl'
@@ -361,9 +409,9 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
 
         # Evaluate the model on the training data
         perf_measures_path = create_svm_model_name(
-            '/home/mondejar/Dropbox/ECG/code/ecg_classification/python/results/' + multi_mode, winL, winR,
+            '/Users/yuxuecheng/Learn/OpenSource/medicine/ecg-classification/python/results/' + multi_mode, winL, winR,
             do_preprocess,
-            maxRR, use_RR, norm_RR, compute_morph, use_weight_class, feature_selection, oversamp_method, leads_flag,
+            maxRR, use_RR, norm_RR, compute_morph, use_weight_class, feature_selection, oversample_method, leads_flag,
             reduced_DS, pca_k, '/')
 
         # ovo_voting:

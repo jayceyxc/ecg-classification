@@ -42,7 +42,7 @@ from numpy.polynomial.hermite import hermfit, hermval
 
 def create_features_labels_name(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_morph, db_path,
                                 reduced_DS, leads_flag):
-    features_labels_name = os.path.join(db_path, 'features_w_' + str(winL) + '_' + str(winR) + '_' + DS)
+    features_labels_name = os.path.join(db_path, 'features', 'w_' + str(winL) + '_' + str(winR) + '_' + DS)
 
     if do_preprocess:
         features_labels_name += '_rm_bsline'
@@ -88,12 +88,23 @@ def load_wvlt_PCA(pca_k, family, level):
     return PCA
 
 
-# Load the data with the configuration and features selected
-# Params:
-# - leads_flag = [MLII, V1] set the value to 0 or 1 to reference if that lead is used
-# - reduced_DS = load DS1, DS2 patients division (Chazal) or reduced version,
-#                i.e., only patients in common that contains both MLII and V1
 def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_morph, db_path, reduced_DS, leads_flag):
+    """
+    Load the data with the configuration and features selected
+    :param DS: 数据集名称，可以为DS1或DS2
+    :param winL:
+    :param winR:
+    :param do_preprocess:
+    :param maxRR:
+    :param use_RR:
+    :param norm_RR:
+    :param compute_morph:
+    :param db_path: 数据文件路径
+    :param reduced_DS: load DS1, DS2 patients division (Chazal) or reduced version,
+                       i.e., only patients in common that contains both MLII and V1
+    :param leads_flag: [MLII, V1] set the value to 0 or 1 to reference if that lead is used
+    :return:
+    """
     features_labels_name = create_features_labels_name(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR,
                                                        compute_morph, db_path, reduced_DS, leads_flag)
 
@@ -280,9 +291,9 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
                         if leads_flag[s] == 1:
                             if f_lbp_lead.size == 1:
 
-                                f_lbp_lead = compute_Uniform_LBP(beat[s], 8)
+                                f_lbp_lead = compute_uniform_LBP(beat[s], 8)
                             else:
-                                f_lbp_lead = np.hstack((f_lbp_lead, compute_Uniform_LBP(beat[s], 8)))
+                                f_lbp_lead = np.hstack((f_lbp_lead, compute_uniform_LBP(beat[s], 8)))
                     f_lbp = np.vstack((f_lbp, f_lbp_lead))
 
             features = np.column_stack((features, f_lbp)) if features.size else f_lbp

@@ -21,15 +21,18 @@ from scipy.signal import medfilt
 import scipy.stats
 import pywt
 import operator
+from numpy.polynomial.hermite import hermfit, hermval
 
 from python.mit_db import *
 
 
-# Input: the R-peaks from a signal
-# Return: the features RR intervals
-#   (pre_RR, post_RR, local_RR, global_RR)
-#    for each beat
 def compute_RR_intervals(R_poses):
+    """
+    计算RR波之间的间隔
+    :param R_poses: the R-peaks from a signal
+    :return: the features RR intervals
+            (pre_RR, post_RR, local_RR, global_RR) for each beat
+    """
     features_RR = RRIntervals()
 
     pre_R = np.array([], dtype=int)
@@ -85,8 +88,14 @@ def compute_RR_intervals(R_poses):
     return features_RR
 
 
-# Compute the wavelet descriptor for a beat
 def compute_wavelet_descriptor(beat, family, level):
+    """
+    Compute the wavelet descriptor for a beat
+    :param beat: 心跳
+    :param family: 小波族
+    :param level: 小波等级
+    :return:
+    """
     wave_family = pywt.Wavelet(family)
     coeffs = pywt.wavedec(beat, wave_family, level=level)
     return coeffs[0]
@@ -133,9 +142,14 @@ def compute_my_own_descriptor(beat, winL, winR):
     return my_morph
 
 
-# Compute the HOS descriptor for a beat
-# Skewness (3 cumulant) and kurtosis (4 cumulant)
 def compute_hos_descriptor(beat, n_intervals, lag):
+    """
+    Compute the HOS descriptor for a beat Skewness (3 cumulant) and kurtosis (4 cumulant)
+    :param beat:
+    :param n_intervals:
+    :param lag:
+    :return:
+    """
     hos_b = np.zeros(((n_intervals - 1) * 2))
     for i in range(0, n_intervals - 1):
         pose = (lag * (i + 1))
@@ -161,12 +175,17 @@ uniform_pattern_list = np.array(
      251, 252, 253, 254, 255])
 
 
-# Compute the uniform LBP 1D from signal with neigh equal to number of neighbours
-# and return the 59 histogram:
-# 0-57: uniform patterns
-# 58: the non uniform pattern
-# NOTE: this method only works with neigh = 8
-def compute_Uniform_LBP(signal, neigh=8):
+def compute_uniform_LBP(signal, neigh=8):
+    """
+    Compute the uniform LBP 1D from signal with neigh equal to number of neighbours
+    and return the 59 histogram:
+    0-57: uniform patterns
+    58: the non uniform pattern
+    NOTE: this method only works with neigh = 8
+    :param signal:
+    :param neigh:
+    :return:
+    """
     hist_u_lbp = np.zeros(59, dtype=float)
 
     avg_win_size = 2
@@ -218,10 +237,14 @@ def compute_LBP(signal, neigh=4):
     return hist_u_lbp
 
 
-# https://docs.scipy.org/doc/numpy-1.13.0/reference/routines.polynomials.hermite.html
-# Support Vector Machine-Based Expert System for Reliable Heartbeat Recognition
-# 15 hermite coefficients!
 def compute_HBF(beat):
+    """
+    https://docs.scipy.org/doc/numpy-1.13.0/reference/routines.polynomials.hermite.html
+    Support Vector Machine-Based Expert System for Reliable Heartbeat Recognition 15 hermite coefficients!
+    :param beat:
+    :return:
+    """
+
     coeffs_hbf = np.zeros(15, dtype=float)
     coeffs_HBF_3 = hermfit(range(0, len(beat)), beat, 3)  # 3, 4, 5, 6?
     coeffs_HBF_4 = hermfit(range(0, len(beat)), beat, 4)
