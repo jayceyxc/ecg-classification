@@ -198,10 +198,14 @@ def compute_uniform_LBP(signal, neigh=8):
     # NOTE: Reduce sampling by half
     # signal_avg = scipy.signal.resample(signal, len(signal) / avg_win_size)
 
-    for i in range(neigh / 2, len(signal) - neigh / 2):
+    start = int(neigh / 2)
+    end = int(len(signal) - neigh / 2)
+    print(f'start: {start}, end: {end}')
+    print(f'signal: {signal}')
+    for i in range(start, end):
         pattern = np.zeros(neigh)
         ind = 0
-        for n in range(-neigh / 2, 0) + range(1, neigh / 2 + 1):
+        for n in list(range(-start, 0)) + list(range(1, start + 1)):
             if signal[i] > signal[i + n]:
                 pattern[ind] = 1
             ind += 1
@@ -226,12 +230,12 @@ def compute_LBP(signal, neigh=4):
     # TODO: use some type of average of the data instead the full signal...
     # Average window-5 of the signal?
     # signal_avg = average_signal(signal, avg_win_size)
-    signal_avg = scipy.signal.resample(signal, len(signal) / avg_win_size)
+    signal_avg = scipy.signal.resample(signal, int(len(signal) / avg_win_size))
 
-    for i in range(neigh / 2, len(signal) - neigh / 2):
+    for i in range(int(neigh / 2), int(len(signal) - neigh / 2)):
         pattern = np.zeros(neigh)
         ind = 0
-        for n in range(-neigh / 2, 0) + range(1, neigh / 2 + 1):
+        for n in list(range(int(-neigh / 2), 0)) + list(range(1, int(neigh / 2 + 1))):
             if signal[i] > signal[i + n]:
                 pattern[ind] = 1
             ind += 1

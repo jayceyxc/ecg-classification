@@ -92,9 +92,9 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
     """
     Load the data with the configuration and features selected
     :param DS: 数据集名称，可以为DS1或DS2
-    :param winL:
-    :param winR:
-    :param do_preprocess:
+    :param winL: 信号采样点的左边窗口大小，表示信号所在采样点的左侧多少个采样点
+    :param winR: 信号采样点的右边窗口大小，表示信号所在采样点的右侧多少个采样点
+    :param do_preprocess: 是否进行预处理
     :param maxRR: 是否使用最大RR间隔
     :param use_RR: 是否使用RR间隔
     :param norm_RR: 是否使用平均的RR间隔
@@ -175,8 +175,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
         # This array contains the number of beats for each patient (for cross_val)
         patient_num_beats = np.array([], dtype=np.int32)
-        for p in range(len(my_db.beat)):
-            patient_num_beats = np.append(patient_num_beats, len(my_db.beat[p]))
+        for patient in range(len(my_db.beat)):
+            patient_num_beats = np.append(patient_num_beats, len(my_db.beat[patient]))
 
         # Compute RR features
         if use_RR or norm_RR:
@@ -187,16 +187,16 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             print("Computing RR intervals ...")
 
-            for p in range(len(my_db.beat)):
+            for patient in range(len(my_db.beat)):
                 if maxRR:
-                    RR[p] = compute_RR_intervals(my_db.R_pos[p])
+                    RR[patient] = compute_RR_intervals(my_db.R_pos[patient])
                 else:
-                    RR[p] = compute_RR_intervals(my_db.orig_R_pos[p])
+                    RR[patient] = compute_RR_intervals(my_db.orig_R_pos[patient])
 
-                RR[p].pre_R = RR[p].pre_R[(my_db.valid_R[p] == 1)]
-                RR[p].post_R = RR[p].post_R[(my_db.valid_R[p] == 1)]
-                RR[p].local_R = RR[p].local_R[(my_db.valid_R[p] == 1)]
-                RR[p].global_R = RR[p].global_R[(my_db.valid_R[p] == 1)]
+                RR[patient].pre_R = RR[patient].pre_R[(my_db.valid_R[patient] == 1)]
+                RR[patient].post_R = RR[patient].post_R[(my_db.valid_R[patient] == 1)]
+                RR[patient].local_R = RR[patient].local_R[(my_db.valid_R[patient] == 1)]
+                RR[patient].global_R = RR[patient].global_R[(my_db.valid_R[patient] == 1)]
 
         if use_RR:
             f_RR = np.empty((0, 4))
@@ -234,8 +234,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_raw = np.empty((0, 10 * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for beat in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for beat in my_db.beat[patient]:
                     f_raw_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -257,8 +257,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_raw = np.empty((0, (winL + winR) * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for beat in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for beat in my_db.beat[patient]:
                     f_raw_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -293,13 +293,14 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_lbp = np.empty((0, 59 * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for beat in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                print(f'patient: {patient}')
+                for beat in my_db.beat[patient]:
                     f_lbp_lead = np.empty([])
                     for s in range(2):
+                        print(f'patient: {patient}, s: {s}')
                         if leads_flag[s] == 1:
                             if f_lbp_lead.size == 1:
-
                                 f_lbp_lead = compute_uniform_LBP(beat[s], 8)
                             else:
                                 f_lbp_lead = np.hstack((f_lbp_lead, compute_uniform_LBP(beat[s], 8)))
@@ -313,8 +314,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_lbp = np.empty((0, 16 * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for beat in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for beat in my_db.beat[patient]:
                     f_lbp_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -333,8 +334,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_hbf = np.empty((0, 15 * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for beat in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for beat in my_db.beat[patient]:
                     f_hbf_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -354,8 +355,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_wav = np.empty((0, 23 * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for b in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for b in my_db.beat[patient]:
                     f_wav_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -378,8 +379,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
             f_wav = np.empty((0, 23 * num_leads))
 
-            for p in range(len(my_db.beat)):
-                for b in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for b in my_db.beat[patient]:
                     f_wav_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -414,8 +415,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
             lag = int(round((winL + winR) / n_intervals))
 
             f_HOS = np.empty((0, (n_intervals - 1) * 2 * num_leads))
-            for p in range(len(my_db.beat)):
-                for b in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for b in my_db.beat[patient]:
                     f_HOS_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -433,8 +434,8 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
         if 'myMorph' in compute_morph:
             print("My Descriptor ...")
             f_myMorhp = np.empty((0, 4 * num_leads))
-            for p in range(len(my_db.beat)):
-                for b in my_db.beat[p]:
+            for patient in range(len(my_db.beat)):
+                for b in my_db.beat[patient]:
                     f_myMorhp_lead = np.empty([])
                     for s in range(2):
                         if leads_flag[s] == 1:
@@ -466,8 +467,8 @@ def load_signal(DS, winL, winR, do_preprocess):
     """
     加载波形数据
     :param DS:
-    :param winL:
-    :param winR:
+    :param winL: 信号采样点的左边窗口大小，表示信号所在采样点的左侧多少个采样点
+    :param winR: 信号采样点的右边窗口大小，表示信号所在采样点的右侧多少个采样点
     :param do_preprocess: 是否进行预处理
     :return:
     """
@@ -545,7 +546,7 @@ def load_signal(DS, winL, winR, do_preprocess):
 
         # 2. Read annotations
         filename = os.path.join(pathDB, DB_name, fAnnotations[r])
-        with open(filename, 'rb') as f:
+        with open(filename, 'r') as f:
             next(f)  # skip first line!
 
             annotations = []
@@ -577,7 +578,7 @@ def load_signal(DS, winL, winR, do_preprocess):
         for a in annotations:
             aS = a.split()
 
-            pos = int(aS[1])            # Time 时间
+            pos = int(aS[1])            # Sample 采样点，对应心电信号.csv中的第一列sample
             originalPos = int(aS[1])    # Sample 采样点，对应心电信号.csv中的第一列sample
             classAnttd = aS[2]
             if size_RR_max < pos < (len(MLII) - size_RR_max):

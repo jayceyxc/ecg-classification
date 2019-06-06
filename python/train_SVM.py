@@ -188,15 +188,30 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
          do_cross_val='', C_value=0.001, gamma_value=0.0, reduced_DS=False, leads_flag=[1, 0]):
     """
 
-    :param multi_mode:
-    :param winL:
-    :param winR:
-    :param do_preprocess:
+    :param multi_mode: the paramter decision_function_shape of the svm.SVC.
+                       'ovo', 'ovr', default='ovr'
+                       Whether to return a one-vs-rest ('ovr') decision function of shape
+                       (n_samples, n_classes) as all other classifiers, or the original
+                       one-vs-one ('ovo') decision function of libsvm which has shape
+                       (n_samples, n_classes * (n_classes - 1) / 2). However, one-vs-one
+                       ('ovo') is always used as multi-class strategy.
+    :param winL: 信号采样点的左边窗口大小，表示信号所在采样点的左侧多少个采样点
+    :param winR: 信号采样点的右边窗口大小，表示信号所在采样点的右侧多少个采样点
+    :param do_preprocess: 是否进行预处理
     :param use_weight_class:
-    :param maxRR:
-    :param use_RR:
-    :param norm_RR:
-    :param compute_morph:
+    :param maxRR: 是否使用最大RR间隔
+    :param use_RR: 是否使用RR间隔
+    :param norm_RR: 是否使用平均的RR间隔
+    :param compute_morph: 计算心电特征的变形，心跳信息。
+           resample_10: 使用傅立叶变换对心跳信息进行重新取样
+           raw: 使用原始的心跳信息
+           u-lbp: compute_uniform_LBP
+           lbp: compute_LBP
+           hbf5: compute_HBF
+           wvlt: compute_wavelet_descriptor
+           wvlt+pca: compute_wavelet_descriptor + IncrementalPCA
+           HOS: compute_hos_descriptor
+           myMorph: compute_my_own_descriptor
     :param oversample_method: 过采样方法，可选参数如下：SMOTE、SMOTE_regular_min、SMOTE_regular、SMOTE_border、SMOTEENN、
                               SMOTETomek、ADASYN
     :param pca_k: 是否使用 IncrementalPCA 降维
@@ -204,9 +219,17 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
            select_K_Best：SelectKBest，
            LassoCV：LassoCV，
            select_percentile：SelectPercentile
-    :param do_cross_val:
-    :param C_value:
-    :param gamma_value:
+    :param do_cross_val: 是否进行交叉验证
+    :param C_value: The parameter C of the svm.SVC. Penalty parameter C of the error term.
+    :param gamma_value: the parameter gama of the svm.SVN.
+                        Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
+
+                        Current default is 'auto' which uses 1 / n_features,
+                        if ``gamma='scale'`` is passed then it uses 1 / (n_features * X.var())
+                        as value of gamma. The current default of gamma, 'auto', will change
+                        to 'scale' in version 0.22. 'auto_deprecated', a deprecated version of
+                        'auto' is used as a default indicating that no explicit value of gamma
+                        was passed.
     :param reduced_DS:
     :param leads_flag:
     :return:
@@ -339,7 +362,7 @@ def main(multi_mode='ovo', winL=90, winR=90, do_preprocess=True, use_weight_clas
                            (c_values, ijk_scores.astype(float)), "%f")
 
             end = time.time()
-            print("Time runing Cross Validation: " + str(format(end - start, '.2f')) + " sec")
+            print("Time running Cross Validation: " + str(format(end - start, '.2f')) + " sec")
     else:
 
         ################################################################################################

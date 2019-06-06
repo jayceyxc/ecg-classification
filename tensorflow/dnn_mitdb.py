@@ -35,7 +35,7 @@ def load_data(output_path, window_size, compute_RR_interval_feature, compute_wav
     eval_data = np.loadtxt(output_path + 'eval_data' + extension, delimiter=",", dtype=float)
     eval_labels = np.loadtxt(output_path + 'eval_label' + extension, delimiter=",", dtype=np.int32)
 
-    return (train_data, train_labels, eval_data, eval_labels)
+    return train_data, train_labels, eval_data, eval_labels
 
 
 def main():
@@ -117,8 +117,7 @@ def main():
     for p in range(0, len(predictions), 1):
         confusion_matrix[predictions[p]][eval_labels[p]] = confusion_matrix[predictions[p]][eval_labels[p]] + 1
 
-    print
-    confusion_matrix
+    print(confusion_matrix)
 
 
 if __name__ == "__main__":
